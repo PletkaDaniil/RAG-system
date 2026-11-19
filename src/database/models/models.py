@@ -11,8 +11,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from database.database import Base
+from database.base import Base
 
 
 # зададим размерность эмбеддингов 
