@@ -1,0 +1,32 @@
+# PostgreSQL + расширение pgvector для векторного поиска;
+# параметры подключения берем из файла .env
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: rag-lab-db
+    restart: unless-stopped
+
+    # настриваем пользователя и саму бд
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DBNAME}
+    ports:
+      - "${PG_PORT:-5432}:5432"
+
+    volumes:
+      # постоянное хранение данных БД при пересоздании контейнера
+      - pgdata:/var/lib/postgresql/data
+
+      # SQL-скрипт для первоначальной настройки БД (включение pgvector)
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+    # проверяем готовность БД к подключению
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DBNAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
